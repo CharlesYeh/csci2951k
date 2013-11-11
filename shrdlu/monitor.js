@@ -1,0 +1,2 @@
+function handleCommand(input) {
+}
