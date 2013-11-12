@@ -17,17 +17,19 @@ DelayedAction.prototype.exec = function(bot) {
 
 lookupWord = function(bot, word, rep) {
   dict = {
-    "say": new actions.ActionChat(bot, rep),
+    "say": function() { return new actions.ActionChat(bot, rep) },
 
-    "move": new actions.ActionMove(bot, rep),
-    "walk": new actions.ActionMove(bot, rep),
-    "run": new actions.ActionMove(bot, rep),
+    "move": function() { return new actions.ActionMove(bot, rep) },
+    "walk": function() { return new actions.ActionMove(bot, rep) },
+    "run": function() { return new actions.ActionMove(bot, rep) },
 
-    "look": new actions.ActionLook(bot, rep),
-    "mine": new actions.ActionMine(bot, rep)
+    "look": function() { return new actions.ActionLook(bot, rep) },
+    "turn": function() { return new actions.ActionLook(bot, rep) },
+
+    "mine": function() { return new actions.ActionMine(bot, rep) }
   }
 
-  return dict[word];
+  return dict[word]();
 }
 
 exports.lookupWord = lookupWord;

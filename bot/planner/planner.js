@@ -16,6 +16,8 @@ Planner.prototype.planCommand = function(bot, command, mcbot) {
 
 // actionRep = JSON object
 function completeParse(mcbot, actionRep) {
+  console.log('STANFORD PARSER RESULT: ');
+  console.log(actionRep);
   actionRep = eval('(' + actionRep + ')');
 
 	// use dictionary, run action functions
@@ -34,7 +36,7 @@ function parseJSONAction(bot, node) {
   func.push(dict.lookupWord(bot, funcName, node));
 
   if (node.conj) {
-    func.concat(parseJSONAction(node.conj));
+    func.concat(parseJSONAction(bot, node.conj));
   }
 
   // TODO: recurse

@@ -13,7 +13,10 @@ CommandQueue.prototype.checkCompletion = function(cq) {
   var curr = cq.commands.peek();
 
   if (curr.completed()) {
-    cq.bot.removeListener(curr.eventType, function() { cq.checkCompletion(cq); });
+    if (curr.eventType) {
+      cq.bot.removeListener(curr.eventType, function() { cq.checkCompletion(cq); });
+    }
+
     cq.commands.dequeue();
 
     if (cq.commands.size > 0) {
@@ -40,7 +43,9 @@ CommandQueue.prototype.runNextCommand = function(cq) {
   var next = comm.peek();
   next.execute();
 
-  cq.bot.on(next.eventType, function() { cq.checkCompletion(cq); });
+  if (next.eventType) {
+    cq.bot.on(next.eventType, function() { cq.checkCompletion(cq); });
+  }
 }
 
 exports.CommandQueue = CommandQueue;

@@ -4,9 +4,6 @@ function ActionMove(bot, data) {
   this.eventType = 'move';
   this.bot = bot;
 
-console.log("ACTION MOVE");
-  console.log(data);
-
   this.dir = (data == null || data.advmod == null) ? 'forward' : data.advmod.fun.toLowerCase();
   switch (this.dir) {
     case 'backward':
@@ -14,10 +11,9 @@ console.log("ACTION MOVE");
       this.dir = 'back';
       break;
   }
-
-  this.start = bot.entity.position.clone();
 }
 ActionMove.prototype.execute = function() {
+  this.start = this.bot.entity.position.clone();
 	this.bot.setControlState(this.dir, true);
 }
 ActionMove.prototype.completed = function() {
@@ -29,23 +25,28 @@ ActionMove.prototype.completed = function() {
 }
 
 // LOOK
-function ActionLook(bot, dir) {
-  this.eventType = 'look';
+function ActionLook(bot, data) {
+  this.bot = bot;
+  this.dir = (data.prt) ? data.prt.fun : data.advmod.fun;
 }
 ActionLook.prototype.execute = function() {
   var pi = 3.14;
-  switch(dir) {
+  switch(this.dir) {
+    case 'straight':
+    case 'forward':
+      this.bot.look(pi / 4, 0);
+      break;
     case 'left':
-      bot.look(pi / 2, 0);
+      this.bot.look(pi / 2, 0);
       break;
     case 'right':
-      bot.look(-pi / 2, 0);
+      this.bot.look(-pi / 2, 0);
       break;
     case 'up':
-      bot.look(0, pi / 2);
+      this.bot.look(0, pi / 4);
       break;
     case 'down':
-      bot.look(0, -pi / 2);
+      this.bot.look(0, -pi / 4);
       break;
   }
 }
@@ -66,12 +67,14 @@ ActionMine.prototype.completed = function() {
 }
 
 // CHAT
-function ActionChat(bot, msg) {
+function ActionChat(bot, data) {
   this.eventType = 'chat';
   this.bot = bot;
+  this.msg = data.dep.fun;
+
 }
 ActionChat.prototype.execute = function() {
-  bot.chat(msg);
+  this.bot.chat(this.msg);
 }
 ActionChat.prototype.completed = function() {
   return true;
