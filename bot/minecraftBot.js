@@ -1,9 +1,9 @@
-require('commands.js');
+var cq = require('./planner/commandQueue');
+var planner = require('./planner/planner');
+var mineflayer = require('../../mineflayer/');
 
 function MinecraftBot() {
-  this.commands = new CommandQueue();
-	
-	this.planner = new Planner();
+	this.planner = new planner.Planner();
 	
 	this.bot = mineflayer.createBot({
 		host: "localhost",
@@ -11,21 +11,33 @@ function MinecraftBot() {
 	
 		username: "bot",
 	});
+
+  var mcbot = this;
+  this.commands = new cq.CommandQueue(this.bot);
 	
 	// events
-	bot.on('login', function() {
+	this.bot.on('login', function() {
 		console.log("Logged in");
 	});
 	
 	// handle chat commands
-	bot.on('chat', function(username, message) {
+	this.bot.on('chat', function(username, message) {
 		// ignore chats by self
-		if (username === bot.username) return;
+		if (username === mcbot.bot.username) return;
 		
-		this.executeCommand(message);
+		mcbot.executeCommand(message);
 	});
 }
 
+exports.MinecraftBot = MinecraftBot;
+
 MinecraftBot.prototype.executeCommand = function(command) {
-	
+  console.log("EXECUTE COMMAND " + command);
+  // get array of commands from planner
+	var commands = this.planner.planCommand(this.bot, command, this);
 }
+
+MinecraftBot.prototype.addActions = function(mcbot, commands) {
+  mcbot.commands.addCommands(mcbot.commands, commands);
+}
+
