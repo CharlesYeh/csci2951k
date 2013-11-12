@@ -22,6 +22,7 @@ lookupWord = function(bot, word, rep) {
     "move": function() { return new actions.ActionMove(bot, rep) },
     "walk": function() { return new actions.ActionMove(bot, rep) },
     "run": function() { return new actions.ActionMove(bot, rep) },
+    "jump": function() { return new actions.ActionMove(bot, rep) },
 
     "look": function() { return new actions.ActionLook(bot, rep) },
     "turn": function() { return new actions.ActionLook(bot, rep) },

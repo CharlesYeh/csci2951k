@@ -36,7 +36,8 @@ function parseJSONAction(bot, node) {
   func.push(dict.lookupWord(bot, funcName, node));
 
   if (node.conj) {
-    func.concat(parseJSONAction(bot, node.conj));
+    var ret = parseJSONAction(bot, node.conj);
+    func = func.concat(ret);
   }
 
   // TODO: recurse

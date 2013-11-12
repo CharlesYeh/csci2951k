@@ -46,6 +46,9 @@ CommandQueue.prototype.runNextCommand = function(cq) {
   if (next.eventType) {
     cq.bot.on(next.eventType, function() { cq.checkCompletion(cq); });
   }
+  else {
+    cq.checkCompletion(cq);
+  }
 }
 
 exports.CommandQueue = CommandQueue;
