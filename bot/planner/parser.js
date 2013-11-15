@@ -1,9 +1,25 @@
-
+var net = require('net');
 var sys = require('sys');
 var exec = require('child_process').exec;
-var json_string = "";
-var updated = 0;
 
+var json_string = "";
+
+parseCommand = function(command, callb) {
+  var client = net.connect({port: 6789}, function() {}); 
+  var data = "";
+
+  client.on('connect', function() {
+    client.write(command);
+    client.on('data', function(dat) {
+      data += dat;
+    });
+    client.on('end', function() {
+      callb(data);
+    });
+  });
+}
+
+/*
 var storeJSON = function (error, stdout, stderr, callback) { 
   console.log("STORE JSON");
   json_string = stdout;
@@ -17,5 +33,7 @@ var parseCommand = function (command,callb) {
 }
 
 exports.parseCommand = parseCommand;
+*/
 
+exports.parseCommand = parseCommand;
 

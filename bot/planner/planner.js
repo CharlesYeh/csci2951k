@@ -1,24 +1,23 @@
+var net = require('net');
 var act = require('./actions');
 var dict = require('../dictionary/dictionary');
 var parser = require('./parser.js');
 
-function Planner() {
-	
-}
+function Planner() {}
 
 exports.Planner = Planner;
 
 Planner.prototype.planCommand = function(bot, command, mcbot) {
 	// parse command => JSON obj
 	parser.parseCommand(command, function(json) { completeParse(mcbot, json); });
-	//completeParse(mcbot, '{root: {fun: "move"}}');
 }
 
 // actionRep = JSON object
 function completeParse(mcbot, actionRep) {
   console.log('STANFORD PARSER RESULT: ');
-  console.log(actionRep);
-  actionRep = eval('(' + actionRep + ')');
+  console.log(actionRep.toString());
+
+  actionRep = eval('(' + actionRep.toString() + ')');
 
 	// use dictionary, run action functions
   actions = parseJSONAction(mcbot.bot, actionRep.root);
