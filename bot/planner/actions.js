@@ -1,3 +1,9 @@
+/**
+ * contains the most basic actions of the minecraft bot
+ *
+ * Move, Mine, Look, Chat
+ */
+
 // MOVE
 function ActionMove(bot, data) {
   // TODO: reconsider classing direction as modifier

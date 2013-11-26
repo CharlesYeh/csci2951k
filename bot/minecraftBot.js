@@ -1,11 +1,11 @@
-var cq = require('./planner/commandQueue');
-var planner = require('./planner/planner');
-var mineflayer = require('../../mineflayer/');
+var ActionQueue = require('./planner/actionQueue');
+var pk_planner = require('./planner/planner');
+var pk_mineflayer = require('../../mineflayer/');
 
 function MinecraftBot() {
-	this.planner = new planner.Planner();
+	this.planner = new pk_planner.Planner();
 	
-	this.bot = mineflayer.createBot({
+	this.bot = pk_mineflayer.createBot({
 		host: "localhost",
 		port: 25565,
 	
@@ -13,7 +13,7 @@ function MinecraftBot() {
 	});
 
   var mcbot = this;
-  this.commands = new cq.CommandQueue(this.bot);
+  this.actions = new ActionQueue(this.bot);
 	
 	// events
 	this.bot.on('login', function() {
@@ -29,15 +29,18 @@ function MinecraftBot() {
 	});
 }
 
-exports.MinecraftBot = MinecraftBot;
-
 MinecraftBot.prototype.executeCommand = function(command) {
-  console.log("EXECUTE COMMAND " + command);
+  console.log("-------------------------");
+  console.log("EXECUTE COMMAND: " + command);
+
   // get array of commands from planner
-	var commands = this.planner.planCommand(this.bot, command, this);
+	var commands = this.planner.planCommand(this, command);
 }
 
-MinecraftBot.prototype.addActions = function(mcbot, commands) {
-  mcbot.commands.addCommands(mcbot.commands, commands);
+// add to action queue
+MinecraftBot.prototype.addActions = function(mcbot, actions) {
+  mcbot.actions.addActions(mcbot.actions, actions);
 }
+
+module.exports = MinecraftBot;
 

@@ -1,18 +1,20 @@
-var net = require('net');
-var act = require('./actions');
-var dict = require('../dictionary/dictionary');
-var parser = require('./parser.js');
+var pk_dict = require('../dictionary/dictionary');
+var pk_parser = require('./parser.js');
 
 function Planner() {}
 
 exports.Planner = Planner;
 
-Planner.prototype.planCommand = function(bot, command, mcbot) {
-	// parse command => JSON obj
-	parser.parseCommand(command, function(json) { completeParse(mcbot, json); });
+Planner.prototype.planCommand = function(mcbot, command) {
+	pk_parser.parseCommand(command, function(json) { completeParse(mcbot, json); });
 }
 
-// actionRep = JSON object
+/**
+ * converts parse tree into planned actions,
+ * then adds them to bot's action queue
+ *
+ * param: actionRep = JSON object
+ */
 function completeParse(mcbot, actionRep) {
   console.log('STANFORD PARSER RESULT: ');
   console.log(actionRep.toString());
@@ -22,9 +24,8 @@ function completeParse(mcbot, actionRep) {
 	// use dictionary, run action functions
   actions = parseJSONAction(mcbot.bot, actionRep.root);
 
-  // check action prerequisites
+  // TODO: check action prerequisites
   
-	// returns array of actions
   mcbot.addActions(mcbot, actions);
 }
 
@@ -32,7 +33,7 @@ function parseJSONAction(bot, node) {
   var funcName = node.fun.toLowerCase();
 
   var func = new Array();
-  func.push(dict.lookupWord(bot, funcName, node));
+  func.push(pk_dict.lookupWord(bot, funcName, node));
 
   if (node.conj) {
     var ret = parseJSONAction(bot, node.conj);

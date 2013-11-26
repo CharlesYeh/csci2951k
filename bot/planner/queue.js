@@ -52,5 +52,5 @@ function Node(value, next) {
   this.next = next;
 }
 
-exports.Queue = Queue;
+module.exports = Queue;
 

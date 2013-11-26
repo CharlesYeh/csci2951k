@@ -1,8 +1,7 @@
 var sys  = require('sys');
-var bot = require('./bot/minecraftBot');
-var mineflayer = require('../mineflayer/');
+var MinecraftBot = require('./bot/minecraftBot');
 
-var mcBot = new bot.MinecraftBot();
+var mcBot = new MinecraftBot();
 
 var stdin = process.openStdin();
 stdin.addListener("data", function(d) {
