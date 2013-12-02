@@ -14,7 +14,7 @@ parseCommand = function(command, callb) {
       data += dat;
     });
     client.on('end', function() {
-      callb(data);
+      callb(eval('(' + data.toString() + ')'));
     });
   });
 }
