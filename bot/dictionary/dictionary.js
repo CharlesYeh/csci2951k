@@ -1,4 +1,4 @@
-var actions = require('../planner/actions');
+var actions = require('../actions');
 var modmove = require('../planner/modifiers/modMove');
 var mod = require('../planner/modifiers/modifiers');
 
