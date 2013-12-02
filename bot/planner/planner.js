@@ -1,12 +1,12 @@
+var net = require('net');
 var pk_dict = require('../dictionary/dictionary');
-var pk_parser = require('./parser.js');
 
 function Planner() {}
 
 exports.Planner = Planner;
 
 Planner.prototype.planCommand = function(mcbot, command) {
-	pk_parser.parseCommand(command, function(json) { planActions(mcbot, json); });
+	parseCommand(command, function(json) { planActions(mcbot, json); });
 }
 
 /**
@@ -24,18 +24,47 @@ function planActions(mcbot, actionObj) {
   mcbot.addActions(mcbot, actions);
 }
 
+/**
+ * parse the JSON representation of a command
+ * into a usable list of actions
+ *
+ * param: node - JSON representation of command
+ * returns: list of basic actions
+ */
 function parseJSONAction(bot, node) {
-  var funcName = node.fun.toLowerCase();
-
   var func = new Array();
-  func.push(pk_dict.lookupWord(bot, funcName, node));
+  func.push(pk_dict.lookupWord(bot, node));
 
-  if (node.conj) {
+  if (node.conj != null) {
 		for (var i in node.conj) {
-			var ret = parseJSONAction(bot, node.conj);
+			var ret = parseJSONAction(bot, node.conj[i]);
     	func = func.concat(ret);
 		}
   }
 
   return func;
 }
+
+/**
+ * connects to a server running the stanford parser
+ * and terminates upon network connection close
+ *
+ * calls the function "callb" with the resulting JSON
+ * representation
+ */
+function parseCommand(command, callb) {
+  var client = net.connect({port: 6789}, function() {}); 
+  var data = "";
+
+  client.on('connect', function() {
+    client.write(command);
+
+    client.on('data', function(dat) {
+      data += dat;
+    });
+    client.on('end', function() {
+      callb(eval('(' + data.toString() + ')'));
+    });
+  });
+}
+

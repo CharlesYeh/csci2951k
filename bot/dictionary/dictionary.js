@@ -1,6 +1,9 @@
-var actions = require('./actions');
-var modmove = require('../planner/modifiers/modMove');
-var mod = require('../planner/modifiers/modifiers');
+var ActionMove = require('./actions/ActionMove');
+var ActionLook = require('./actions/ActionLook');
+var ActionMine = require('./actions/ActionMine');
+var ActionChat = require('./actions/ActionChat');
+
+var ModeMove = require('./modifiers/ModMove');
 
 // dictionary maps "dict commands" to "actions"
 
@@ -8,48 +11,67 @@ function Dictionary() {}
 
 exports.Dictionary = Dictionary;
 
-function DelayedAction(func, args) {
-  this.func = func;
-  this.args = args;
+function lookupWord(bot, node) {
+  var word = node.fun.toLowerCase();
+
+  // use functions so the objects aren't all created when defining "dict"
+  switch (word) {
+  case "say":     return new ActionChat(bot, node);
+
+  case "move": 	  return new ActionMove(bot, node);
+  case "walk": 	  return new ActionMove(bot, node);
+  case "jump": 	  return new ActionMove(bot, node);
+  case "shuffle": return new ActionMove(bot, node);
+  case "run": 		return new ActionMove(bot, node, new ModMove(true));
+
+  case "look": 	  return new ActionLook(bot, node);
+  case "turn": 	  return new ActionLook(bot, node);
+
+  case "mine": 	  return new ActionMine(bot, node);
+  
+  // move modifiers
+  case "quickly":
+  case "fast":
+  case "speedily":
+    return new ModMove(true);
+
+  case "forward":  return new ModMove(null, null, "forward");
+  case "left":  return new ModMove(null, null, "left");
+  case "right":  return new ModMove(null, null, "right");
+  case "backward":
+  case "backwards":
+  case "back":
+    return new ModMove(null, null, "back");
+
+  case "block":
+    // {num: 3}
+    // {det: a}
+    // dobj to move
+
+  default:
+    // unrecognized vocab
+    break;
+  }
 }
 
-DelayedAction.prototype.exec = function(bot) {
-  this.func(bot);
-}
-
-lookupWord = function(bot, word, rep) {
-  dict = {
-    "say": function() { return new actions.ActionChat(bot, rep) },
-
-    "move": 	new actions.ActionMove(bot, rep),
-    "walk": 	new actions.ActionMove(bot, rep),
-    "run": 		new actions.ActionMove(bot, rep),
-    "jump": 	new actions.ActionMove(bot, rep),
-    "shuffle": 	new actions.ActionMove(bot, rep),
-
-    "look": 	new actions.ActionLook(bot, rep),
-    "turn": 	new actions.ActionLook(bot, rep),
-
-    "mine": 	new actions.ActionMine(bot, rep),
-    
-    "quickly": 	new modmove.ModMove(true, null),
-    "fast": 	new modmove.ModMove(true, null),
-    "speedily": new modmove.ModMove(true, null)
+function interpretModifiers(bot, mods, resultMod) {
+  if (mods != null) {
+    for (var i in mods) {
+      var node = mods[i];
+      var cmod = lookupWord(bot, node);
+      
+      if (!cmod.mod) {
+        // not a mod, TODO: error
+      }
+      else {
+        resultMod.combine(cmod);
+      }
+    }
   }
 
-  return dict[word];
-}
-
-lookupRecursively = function(bot, word, rep) {
-  var w = lookupWord(bot, word, rep);
-  for (var key in w) {
-	if (key == "fun") {
-	}
-	else {
-	  lookupRecursively(bot, word, rep);
-	}
-  }
+  return resultMod;
 }
 
 exports.lookupWord = lookupWord;
+exports.interpretModifiers = interpretModifiers;
 
