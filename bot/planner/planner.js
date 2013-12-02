@@ -6,7 +6,7 @@ function Planner() {}
 exports.Planner = Planner;
 
 Planner.prototype.planCommand = function(mcbot, command) {
-	pk_parser.parseCommand(command, function(json) { completeParse(mcbot, json); });
+	pk_parser.parseCommand(command, function(json) { planActions(mcbot, json); });
 }
 
 /**
@@ -15,14 +15,9 @@ Planner.prototype.planCommand = function(mcbot, command) {
  *
  * param: actionRep = JSON object
  */
-function completeParse(mcbot, actionRep) {
-  console.log('STANFORD PARSER RESULT: ');
-  console.log(actionRep.toString());
-
-  actionRep = eval('(' + actionRep.toString() + ')');
-
-	// use dictionary, run action functions
-  actions = parseJSONAction(mcbot.bot, actionRep.root);
+function planActions(mcbot, actionObj) {
+  // use dictionary, run action functions
+  actions = parseJSONAction(mcbot.bot, actionObj.root[0]);
 
   // TODO: check action prerequisites
   
@@ -36,11 +31,11 @@ function parseJSONAction(bot, node) {
   func.push(pk_dict.lookupWord(bot, funcName, node));
 
   if (node.conj) {
-    var ret = parseJSONAction(bot, node.conj);
-    func = func.concat(ret);
+		for (var i in node.conj) {
+			var ret = parseJSONAction(bot, node.conj);
+    	func = func.concat(ret);
+		}
   }
 
-  // TODO: recurse
-  
   return func;
 }
