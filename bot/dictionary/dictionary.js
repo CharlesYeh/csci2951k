@@ -1,4 +1,4 @@
-var actions = require('../actions');
+var actions = require('./actions');
 var modmove = require('../planner/modifiers/modMove');
 var mod = require('../planner/modifiers/modifiers');
 
@@ -32,12 +32,12 @@ lookupWord = function(bot, word, rep) {
 
     "mine": 	new actions.ActionMine(bot, rep),
     
-    "quickly": 	mod.combine(new modmove.ModMove(true, null)),
-    "fast": 	mod.combine(new modmove.ModMove(true, null)),
-    "speedily": mod.combine(new modmove.ModMove(true, null))
+    "quickly": 	new modmove.ModMove(true, null),
+    "fast": 	new modmove.ModMove(true, null),
+    "speedily": new modmove.ModMove(true, null)
   }
 
-  return dict[word]();
+  return dict[word];
 }
 
 lookupRecursively = function(bot, word, rep) {
