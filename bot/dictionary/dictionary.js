@@ -3,7 +3,8 @@ var ActionLook = require('./actions/ActionLook');
 var ActionMine = require('./actions/ActionMine');
 var ActionChat = require('./actions/ActionChat');
 
-var ModeMove = require('./modifiers/ModMove');
+var ModDescriptor = require('./modifiers/ModDescriptor');
+var ModMove = require('./modifiers/ModMove');
 
 // dictionary maps "dict commands" to "actions"
 
@@ -11,46 +12,85 @@ function Dictionary() {}
 
 exports.Dictionary = Dictionary;
 
+Targets = {
+  BLOCK: 0,
+  TREE: 1,
+  PERSON: 2
+}
+
 function lookupWord(bot, node) {
   var word = node.fun.toLowerCase();
+
+  // check if is number
+  var i = parseInt(word);
+  if (!isNaN(i)) {
+    return ModDescriptor.createQuantified(i);
+  }
 
   // use functions so the objects aren't all created when defining "dict"
   switch (word) {
   case "say":     return new ActionChat(bot, node);
 
-  case "move": 	  return new ActionMove(bot, node);
-  case "walk": 	  return new ActionMove(bot, node);
-  case "jump": 	  return new ActionMove(bot, node);
-  case "shuffle": return new ActionMove(bot, node);
-  case "run": 		return new ActionMove(bot, node, new ModMove(true));
+  // ---------- MOVE ----------
+  case "move":
+  case "shuffle":
+  case "walk":
+  case "go":
+    return new ActionMove(bot, node);
+  case "jump":
+  case "hop":
+    return new ActionMove(bot, node, ModMove.createJumping());
+  case "sprint":
+  case "charge":
+  case "run":
+    return new ActionMove(bot, node, ModMove.createFast());
 
-  case "look": 	  return new ActionLook(bot, node);
-  case "turn": 	  return new ActionLook(bot, node);
+  // ---------- LOOK ----------
+  case "look":
+  case "turn":
+    return new ActionLook(bot, node);
 
-  case "mine": 	  return new ActionMine(bot, node);
+  // ---------- MINE ----------
+  case "mine":
+    return new ActionMine(bot, node);
   
+  // ---------- MOVE MOD ----------
   // move modifiers
   case "quickly":
   case "fast":
   case "speedily":
-    return new ModMove(true);
-
-  case "forward":  return new ModMove(null, null, "forward");
-  case "left":  return new ModMove(null, null, "left");
-  case "right":  return new ModMove(null, null, "right");
+    return ModMove.createFast();
+  case "straight":
+  case "forward":
+    return ModMove.createDir("forward");
+  case "left":  return ModMove.createDir("left");
+  case "right": return ModMove.createDir("right");
   case "backward":
   case "backwards":
   case "back":
-    return new ModMove(null, null, "back");
+    return ModMove.createDir("back");
 
-  case "block":
-    // {num: 3}
-    // {det: a}
-    // dobj to move
+  // ---------- MOVE DESC ----------
+  case "the":
+    return ModDescriptor.createHardTargeted();
+  case "a":
+  case "an":
+    return ModDescriptor.createSoftTargeted();
 
   default:
     // unrecognized vocab
-    break;
+    return lookupWord_objects(bot, word, node);
+  }
+}
+
+function lookupWord_objects(bot, word, node) {
+  switch (word) {
+  case "blocks":
+  case "block":
+    return interpretDestination(bot, node, Targets.BLOCK);
+  case "trees":
+  case "tree":
+    return interpretDestination(bot, node, Targets.TREE);
   }
 }
 
@@ -70,6 +110,20 @@ function interpretModifiers(bot, mods, resultMod) {
   }
 
   return resultMod;
+}
+
+function interpretDestination(bot, node) {
+  if (node.num) {
+    // # blocks
+    dest = lookupWord(bot, node.num[0]);
+  }
+  else if (node.det) {
+    // the block
+    dest = lookupWord(bot, node.det[0]);
+  }
+  dest.target = Targets.BLOCK;
+
+  return ModMove.createDest(dest);
 }
 
 exports.lookupWord = lookupWord;

@@ -63,7 +63,7 @@ function parseCommand(command, callb) {
       data += dat;
     });
     client.on('end', function() {
-      callb(eval('(' + data.toString() + ')'));
+      callb((data == "") ? null : eval("(" + data.toString() + ")"));
     });
   });
 }

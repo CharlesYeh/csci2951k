@@ -2,6 +2,8 @@ var ActionQueue = require('./planner/actionQueue');
 var pk_planner = require('./planner/planner');
 var pk_mineflayer = require('../../mineflayer/');
 
+var mcbot;
+
 function MinecraftBot() {
 	this.planner = new pk_planner.Planner();
 	
@@ -12,29 +14,29 @@ function MinecraftBot() {
 		username: "bot",
 	});
 
-  var mcbot = this;
+  mcbot = this;
   this.actions = new ActionQueue(this.bot);
 	
 	// events
 	this.bot.on('login', function() {
 		console.log("Logged in");
-	});
+  });
 	
 	// handle chat commands
 	this.bot.on('chat', function(username, message) {
 		// ignore chats by self
 		if (username === mcbot.bot.username) return;
 		
-		mcbot.executeCommand(message);
+		mcbot.executeCommand(message + "\n");
 	});
 }
 
 MinecraftBot.prototype.executeCommand = function(command) {
   console.log("-------------------------");
-  console.log("EXECUTE COMMAND: " + command);
+  console.log("EXECUTE COMMAND: " + command.substring(0, command.length - 1));
 
   // get array of commands from planner
-	var commands = this.planner.planCommand(this, command);
+	var commands = this.planner.planCommand(mcbot, command);
 }
 
 // add to action queue
