@@ -3,8 +3,8 @@ var ActionLook = require('./actions/ActionLook');
 var ActionMine = require('./actions/ActionMine');
 var ActionChat = require('./actions/ActionChat');
 
-var ModDescriptor = require('./modifiers/ModDescriptor');
-var ModMove = require('./modifiers/ModMove');
+var ModDescriptor = require('./ModDescriptor');
+var Modifier = require('./Modifier');
 
 // dictionary maps "dict commands" to "actions"
 
@@ -39,16 +39,16 @@ function lookupWord(bot, node) {
     return new ActionMove(bot, node);
   case "jump":
   case "hop":
-    return new ActionMove(bot, node, ModMove.createJumping());
+    return new ActionMove(bot, node, Modifier.createJumping());
   case "sprint":
   case "charge":
   case "run":
-    return new ActionMove(bot, node, ModMove.createFast());
+    return new ActionMove(bot, node, Modifier.createFast());
 
   // ---------- LOOK ----------
   case "look":
   case "turn":
-    return new ActionLook(bot, node);
+    return new ActionMove(bot, node, Modifier.createLook());
 
   // ---------- MINE ----------
   case "mine":
@@ -59,16 +59,19 @@ function lookupWord(bot, node) {
   case "quickly":
   case "fast":
   case "speedily":
-    return ModMove.createFast();
+    return Modifier.createFast();
   case "straight":
   case "forward":
-    return ModMove.createDir("forward");
-  case "left":  return ModMove.createDir("left");
-  case "right": return ModMove.createDir("right");
+    return Modifier.createDir(Modifier.Dir.FORWARD);
+  case "left":  return Modifier.createDir(Modifier.Dir.LEFT);
+  case "right": return Modifier.createDir(Modifier.Dir.RIGHT);
+  case "around":
   case "backward":
   case "backwards":
   case "back":
-    return ModMove.createDir("back");
+    return Modifier.createDir(Modifier.Dir.BACK);
+  case "up": return Modifier.createDir(Modifier.Dir.UP);
+  case "down": return Modifier.createDir(Modifier.Dir.DOWN);
 
   // ---------- MOVE DESC ----------
   case "the":
@@ -78,19 +81,60 @@ function lookupWord(bot, node) {
     return ModDescriptor.createSoftTargeted();
 
   default:
-    // unrecognized vocab
-    return lookupWord_objects(bot, word, node);
+    // check if is block name
+    return lookupWord_blocks(bot, node, word);
   }
 }
 
-function lookupWord_objects(bot, word, node) {
+function lookupWord_blocks(bot, node, word) {
   switch (word) {
   case "blocks":
   case "block":
-    return interpretDestination(bot, node, Targets.BLOCK);
+    return interpretMultDest(bot, node, new Array("stone", "grass", "dirt", "stonebrick", "wood", "sand", "gravel", "log", ""));
+
+  case "stone":
+  case "rock":
+    return interpretDest(bot, node, "stone");
+  case "grass":
+    return interpretDest(bot, node, "grass");
+  case "dirt":
+    return interpretDest(bot, node, "dirt");
+  case "cobblestone":
+    return interpretDest(bot, node, "stonebrick");
+  case "wood":
+  case "plank":
+  case "planks":
+    return interpretDest(bot, node, "wood");
+  case "sapling":
+    return interpretDest(bot, node, "sapling");
+  case "water":
+    return interpretMultDest(bot, node, new Array("water", "waterStationary"));
+  case "lava":
+    return interpretMultDest(bot, node, new Array("lava", "lavaStationary"));
+  case "sand":
+    return interpretDest(bot, node, "sand");
+  case "gravel":
+    return interpretDest(bot, node, "gravel");
   case "trees":
   case "tree":
-    return interpretDestination(bot, node, Targets.TREE);
+    return interpretDest(bot, node, "log");
+  case "chest":
+    return interpretDest(bot, node, "chest");
+  case "flower":
+    return interpretMultDest(bot, node, new Array("flower", "rose"));
+  case "mushroom":
+    return interpretMultDest(bot, node, new Array("mushroomBrown", "mushroomRed"));
+  case "torch":
+    return interpretDest(bot, node, "torch");
+  case "rose":
+    return interpretDest(bot, node, "rose");
+  case "table":
+  case "workbench":
+    return interpretDest(bot, node, "workbench");
+  case "furnace":
+    return interpretMultDest(bot, node, new Array("furnace", "furnaceBurning"));
+  default:
+    return null;
   }
 }
 
@@ -112,7 +156,11 @@ function interpretModifiers(bot, mods, resultMod) {
   return resultMod;
 }
 
-function interpretDestination(bot, node) {
+function interpretDest(bot, node, target) {
+  return interpretMultDest(bot, node, new Array(target));
+}
+function interpretMultDest(bot, node, targets) {
+  // get ModDescriptor through type first
   if (node.num) {
     // # blocks
     dest = lookupWord(bot, node.num[0]);
@@ -121,9 +169,15 @@ function interpretDestination(bot, node) {
     // the block
     dest = lookupWord(bot, node.det[0]);
   }
-  dest.target = Targets.BLOCK;
+  else {
+    // assume soft
+    dest = ModDescriptor.createSoftTargeted();
+  }
 
-  return ModMove.createDest(dest);
+  // dest is a ModDescriptor
+  dest.targets = targets;
+
+  return Modifier.createDest(dest);
 }
 
 exports.lookupWord = lookupWord;

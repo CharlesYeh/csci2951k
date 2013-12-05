@@ -1,5 +1,5 @@
 pk_dict = require('../dictionary.js');
-ModMove = require('../modifiers/ModMove.js');
+Modifier = require('../Modifier.js');
 
 /**
  * contains the basic Chat action of the minecraft bot
