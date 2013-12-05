@@ -31,7 +31,7 @@ ActionMine.prototype.execute = function() {
     switch (this.mod.dest.type) {
     case ModDescriptor.DestType.SOFTTARGET:
     case ModDescriptor.DestType.HARDTARGET:
-      this.bot.lookAt(this.mod.dest.point);
+      this.bot.dig(this.mod.dest.block);
       break;
     }
   }
@@ -40,5 +40,5 @@ ActionMine.prototype.completed = function() {
   return true;
 }
 
-exports.ActionMine = ActionMine;
+module.exports = ActionMine;
 

@@ -31,7 +31,7 @@ ActionCraft.prototype.execute = function() {
     switch (this.mod.dest.type) {
     case ModDescriptor.DestType.SOFTTARGET:
     case ModDescriptor.DestType.HARDTARGET:
-      this.bot.lookAt(this.mod.dest.point);
+      this.bot.craft(this.mod.dest.block);
       break;
     }
   }
@@ -40,5 +40,5 @@ ActionCraft.prototype.completed = function() {
   return true;
 }
 
-exports.ActionCraft = ActionCraft;
+module.exports = ActionCraft;
 

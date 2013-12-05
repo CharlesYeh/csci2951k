@@ -85,6 +85,7 @@ ActionMove.prototype.completed = function() {
     switch (this.mod.dest.type) {
     case ModDescriptor.DestType.DISTANCE:
       var movedDistance = this.bot.entity.position.distanceTo(this.start);
+      console.log(movedDistance);
       completed = movedDistance > this.mod.dest.count;
       break;
     case ModDescriptor.DestType.SOFTTARGET:

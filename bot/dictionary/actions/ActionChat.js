@@ -17,5 +17,5 @@ ActionChat.prototype.completed = function() {
   return true;
 }
 
-exports.ActionChat = ActionChat;
+module.exports = ActionChat;
 

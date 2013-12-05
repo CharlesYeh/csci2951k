@@ -2,10 +2,14 @@ var Queue = require('./queue');
 
 function ActionQueue(bot) {
   this.bot = bot;
+  bot.cq = this;
+
   this.actions = new Queue();
 }
 
-ActionQueue.prototype.checkCompletion = function(cq) {
+checkCompletion = function() {
+  var cq = this.cq;
+
   // keep checking completion for current command, then move on to next
   if (cq.actions.size == 0) {
     return;
@@ -13,10 +17,7 @@ ActionQueue.prototype.checkCompletion = function(cq) {
   var curr = cq.actions.peek();
 
   if (curr.completed()) {
-    if (curr.eventType) {
-      cq.bot.removeListener(curr.eventType, function() { cq.checkCompletion(cq); });
-    }
-
+    this.removeListener(curr.eventType, checkCompletion);
     cq.actions.dequeue();
 
     if (cq.actions.size > 0) {
@@ -44,7 +45,7 @@ ActionQueue.prototype.runNextAction = function(cq) {
   next.execute();
 
   if (next.eventType) {
-    cq.bot.on(next.eventType, function() { cq.checkCompletion(cq); });
+    cq.bot.on(next.eventType, checkCompletion);
   }
   else {
     cq.checkCompletion(cq);

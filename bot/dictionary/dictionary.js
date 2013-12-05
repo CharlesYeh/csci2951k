@@ -51,6 +51,8 @@ function lookupWord(bot, node) {
     return new ActionMove(bot, node, Modifier.createLook());
 
   // ---------- MINE ----------
+  case "get":
+  case "retrieve":
   case "mine":
     return new ActionMine(bot, node);
   

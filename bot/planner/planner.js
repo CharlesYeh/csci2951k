@@ -16,6 +16,8 @@ Planner.prototype.planCommand = function(mcbot, command) {
  * param: actionRep = JSON object
  */
 function planActions(mcbot, actionObj) {
+  console.log("JSON:" + JSON.stringify(actionObj));
+
   // use dictionary, run action functions
   actions = parseJSONAction(mcbot.bot, actionObj.root[0]);
 
