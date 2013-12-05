@@ -1,6 +1,6 @@
 var ActionMove = require('./actions/ActionMove');
-var ActionLook = require('./actions/ActionLook');
 var ActionMine = require('./actions/ActionMine');
+var ActionCraft = require('./actions/ActionCraft');
 var ActionChat = require('./actions/ActionChat');
 
 var ModDescriptor = require('./ModDescriptor');

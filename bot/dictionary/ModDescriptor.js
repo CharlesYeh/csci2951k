@@ -10,6 +10,7 @@ function ModDescriptor(type, dir) {
 
   // set upon interpretTarget, point to go to
   this.point = null;
+  this.block = null;
 
   // angle for look
   this.dir = dir;
@@ -40,7 +41,8 @@ ModDescriptor.prototype.interpretTarget = function(self, bot) {
 
     }
     else {
-      self.point = matches[Math.floor(Math.random() * matches.length)].position;
+      self.block = matches[Math.floor(Math.random() * matches.length)];
+      self.point = self.block.position;
     }
     break;
   }
