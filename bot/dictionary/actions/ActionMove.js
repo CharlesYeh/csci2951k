@@ -22,6 +22,12 @@ function ActionMove(bot, data, mod) {
   this.mod = pk_dict.interpretModifiers(bot, data.prep, this.mod);
 }
 ActionMove.prototype.setup = function(cq) {
+  if (!this.mod.dest.point) {
+    this.mod.interpretTarget(this.mod, this.bot);
+  }
+  
+  var actions = this.bot.astar(this.bot, this.bot.entity.position, this.mod.dest.point);
+  cq.prependActions(cq, actions);
 }
 ActionMove.prototype.execute = function() {
   this.start = this.bot.entity.position.clone();
@@ -34,8 +40,6 @@ ActionMove.prototype.execute = function() {
   if (this.mod.fast) {
 	  this.bot.setControlState(STATE_SPRINT, true);
   }
-
-  this.mod.interpretTarget(this.mod, this.bot);
 
   if (this.mod.dest) {
     switch (this.mod.dest.type) {
