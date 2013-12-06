@@ -21,8 +21,6 @@ function planActions(mcbot, actionObj) {
   // use dictionary, run action functions
   actions = parseJSONAction(mcbot.bot, actionObj.root[0]);
 
-  // TODO: check action prerequisites
-  
   mcbot.addActions(mcbot, actions);
 }
 

@@ -17,7 +17,7 @@ checkCompletion = function() {
   var curr = cq.actions.peek();
 
   if (curr.completed()) {
-    console.log("ACTION COMPLETD");
+    console.log("ACTION COMPLETED");
 
     this.removeListener(curr.eventType, checkCompletion);
     cq.actions.dequeue();

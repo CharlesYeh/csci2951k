@@ -7,7 +7,7 @@ Modifier = require('../Modifier.js');
 function ActionChat(bot, data) {
   this.eventType = 'chat';
   this.bot = bot;
-  this.msg = data.dep.fun;
+  this.msg = data.dep[0].fun;
 
 }
 ActionChat.prototype.setup = function(cq) {
