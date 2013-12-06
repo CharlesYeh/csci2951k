@@ -19,6 +19,17 @@ Queue.prototype.enqueue = function(value) {
   this.size++;
 }
 
+Queue.prototype.prepend = function(value) {
+  var node = new Node(value, null);
+
+  if (this.head != null) {
+    node.next = this.head;
+  }
+
+  this.head = node;
+  this.size++;
+}
+
 // peek at front
 Queue.prototype.peek = function() {
   if (this.head == null) {

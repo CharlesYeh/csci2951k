@@ -21,6 +21,8 @@ function ActionMove(bot, data, mod) {
   this.mod = pk_dict.interpretModifiers(bot, data.pobj, this.mod);
   this.mod = pk_dict.interpretModifiers(bot, data.prep, this.mod);
 }
+ActionMove.prototype.setup = function(cq) {
+}
 ActionMove.prototype.execute = function() {
   this.start = this.bot.entity.position.clone();
   

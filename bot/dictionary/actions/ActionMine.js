@@ -16,28 +16,28 @@ function ActionMine(bot, data, mod) {
   this.mod = pk_dict.interpretModifiers(bot, data.dobj, this.mod);
   this.mod = pk_dict.interpretModifiers(bot, data.pobj, this.mod);
   this.mod = pk_dict.interpretModifiers(bot, data.prep, this.mod);
+
+  this.done = false;
 }
-ActionMine.prototype.canExecute = function() {
+ActionMine.prototype.setup = function(cq) {
   if (!this.mod.dest.point) {
     this.mod.interpretTarget(this.mod, this.bot);
   }
 
-  return (this.bot.canDigBlock(this.mod.dest.point));
+  //return (this.bot.canDigBlock(this.mod.dest.point));
 }
 ActionMine.prototype.execute = function() {
-  this.mod.interpretTarget(this.mod, this.bot);
-
   if (this.mod.dest) {
     switch (this.mod.dest.type) {
     case ModDescriptor.DestType.SOFTTARGET:
     case ModDescriptor.DestType.HARDTARGET:
-      this.bot.dig(this.mod.dest.block);
+      this.bot.dig(this.mod.dest.block, function() { this.done = true; });
       break;
     }
   }
 }
 ActionMine.prototype.completed = function() {
-  return true;
+  return this.done;
 }
 
 module.exports = ActionMine;

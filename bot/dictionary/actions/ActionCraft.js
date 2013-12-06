@@ -16,28 +16,53 @@ function ActionCraft(bot, data, mod) {
   this.mod = pk_dict.interpretModifiers(bot, data.dobj, this.mod);
   this.mod = pk_dict.interpretModifiers(bot, data.pobj, this.mod);
   this.mod = pk_dict.interpretModifiers(bot, data.prep, this.mod);
-}
-ActionCraft.prototype.canExecute = function() {
-  if (!this.mod.dest.point) {
-    this.mod.interpretTarget(this.mod, this.bot);
-  }
 
-  return (this.bot.canDigBlock(this.mod.dest.point));
+  this.table = null;
+  this.done = false;
+}
+ActionCraft.prototype.setup = function(cq) {
+  // find crafting table
+  this.bot.scanNearby(this.bot);
+  var tables = this.bot.getBlockType(this.bot, new Array("workbench"));
+
+  var closestTable = null;
+  var closestDist = 0;
+  for (var i in tables) {
+    var d = this.bot.position.distanceTo(tables[i].position);
+
+    if (closestTable == null || d < closestDist) {
+      closestTable = tables[i];
+      closestDist = d;
+    }
+  }
+  this.table = closestTable;
+
+  return this.bot.canDigBlock(this.table);
 }
 ActionCraft.prototype.execute = function() {
   this.mod.interpretTarget(this.mod, this.bot);
 
   if (this.mod.dest) {
-    switch (this.mod.dest.type) {
-    case ModDescriptor.DestType.SOFTTARGET:
-    case ModDescriptor.DestType.HARDTARGET:
-      this.bot.craft(this.mod.dest.block);
-      break;
-    }
+    // craft this.mod.dest.target
+    var recipes = this.bot.recipesFor(this.mod.dest.target, null, 1, this.table);
+    closureCraft(this, recipes, 0);
   }
 }
 ActionCraft.prototype.completed = function() {
-  return true;
+  return this.done;
+}
+
+function closureCraft(self, recipes, index) {
+  return function() { craftRecipes(self, recipes, index); };
+}
+function craftRecipes(self, recipes, index) {
+  if (index >= recipes.length) {
+    console.log(self.bot.inventory);
+    self.done = true;
+  }
+
+  self.bot.craft(recipes[index], 1, self.mod.dest.count, self.table,
+                 closureCraft(recipes, index + 1, self));
 }
 
 module.exports = ActionCraft;

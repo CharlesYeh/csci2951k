@@ -55,6 +55,12 @@ function lookupWord(bot, node) {
   case "retrieve":
   case "mine":
     return new ActionMine(bot, node);
+
+  // ---------- MINE ----------
+  case "make":
+  case "create":
+  case "craft":
+    return new ActionCraft(bot, node);
   
   // ---------- MOVE MOD ----------
   // move modifiers
@@ -84,7 +90,29 @@ function lookupWord(bot, node) {
 
   default:
     // check if is block name
-    return lookupWord_blocks(bot, node, word);
+    var res = lookupWord_blocks(bot, node, word);
+    return (res == null) ? lookupWord_items(bot, node, word) : res;
+  }
+}
+
+function lookupWord_items(bot, node, word) {
+  switch (word) {
+  case "plank":
+  case "planks":
+    return Modifier.createDest(ModDescriptor.createItem(5));
+  case "shovel":
+    return Modifier.createDest(ModDescriptor.createItem(256));
+  case "pickaxe":
+    return Modifier.createDest(ModDescriptor.createItem(257));
+  case "axe":
+    return Modifier.createDest(ModDescriptor.createItem(258));
+  case "flint":
+    return Modifier.createDest(ModDescriptor.createItem(259));
+  case "stick":
+  case "sticks":
+    return Modifier.createDest(ModDescriptor.createItem(280));
+  default:
+    return null;
   }
 }
 
@@ -104,6 +132,7 @@ function lookupWord_blocks(bot, node, word) {
   case "cobblestone":
     return interpretDest(bot, node, "stonebrick");
   case "wood":
+    return interpretMultDest(bot, node, new Array("log", "wood"));
   case "plank":
   case "planks":
     return interpretDest(bot, node, "wood");
@@ -168,7 +197,7 @@ function interpretMultDest(bot, node, targets) {
     dest = lookupWord(bot, node.num[0]);
   }
   else if (node.det) {
-    // the block
+    // a/the block
     dest = lookupWord(bot, node.det[0]);
   }
   else {

@@ -17,6 +17,8 @@ checkCompletion = function() {
   var curr = cq.actions.peek();
 
   if (curr.completed()) {
+    console.log("ACTION COMPLETD");
+
     this.removeListener(curr.eventType, checkCompletion);
     cq.actions.dequeue();
 
@@ -39,9 +41,17 @@ ActionQueue.prototype.addActions = function(cq, cmds) {
   }
 }
 
+ActionQueue.prototype.prependActions = function(cq, actions) {
+  for (var i = actions.length - 1; i >= 0; i--) {
+    cq.actions.prepend(actions[i]);
+  }
+}
+
 ActionQueue.prototype.runNextAction = function(cq) {
   var comm = cq.actions;
   var next = comm.peek();
+
+  next.setup(cq);
   next.execute();
 
   if (next.eventType) {

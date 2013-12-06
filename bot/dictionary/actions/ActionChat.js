@@ -10,6 +10,8 @@ function ActionChat(bot, data) {
   this.msg = data.dep.fun;
 
 }
+ActionChat.prototype.setup = function(cq) {
+}
 ActionChat.prototype.execute = function() {
   this.bot.chat(this.msg);
 }

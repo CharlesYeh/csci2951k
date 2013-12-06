@@ -38,7 +38,7 @@ ModDescriptor.prototype.interpretTarget = function(self, bot) {
 
     if (matches.length == 0) {
       // TODO: didn't find a match!!
-
+      console.log("No matches for block search");
     }
     else {
       self.block = matches[Math.floor(Math.random() * matches.length)];
@@ -64,6 +64,11 @@ ModDescriptor.createHardTargeted = function() {
 }
 ModDescriptor.createAbsolute = function(d) {
   return new ModDescriptor(ModDescriptor.DestType.ABSOLUTE, d);
+}
+ModDescriptor.createItem = function(t) {
+  var m = new ModDescriptor(ModDescriptor.DestType.SOFTTARGET);
+  m.target = t;
+  return m;
 }
 
 module.exports = ModDescriptor;
