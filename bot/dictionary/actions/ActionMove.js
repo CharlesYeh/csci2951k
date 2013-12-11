@@ -35,7 +35,7 @@ ActionMove.prototype.setup = function(cq) {
   // prerequisites handled by navigate
   return true;
 }
-ActionMove.prototype.navigateToPoint() {
+ActionMove.prototype.navigateToPoint = function() {
   // if point is a block, then find an empty spot near it
   if (this.mod.dest.block.boundingBox == "block") {
     // TODO:
