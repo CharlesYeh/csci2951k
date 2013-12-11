@@ -3,6 +3,7 @@ var Queue = require('./queue');
 function ActionQueue(bot) {
   this.bot = bot;
   bot.cq = this;
+  bot.checkCompletion = checkCompletion;
 
   this.actions = new Queue();
 }
@@ -49,16 +50,21 @@ ActionQueue.prototype.prependActions = function(cq, actions) {
 
 ActionQueue.prototype.runNextAction = function(cq) {
   var comm = cq.actions;
+
   var next = comm.peek();
 
-  next.setup(cq);
+  // back chaining, prereq checking
+  while (!next.setup(cq)) {
+    next = comm.peek();
+  }
+
   next.execute();
 
-  if (next.eventType) {
+  if (next.eventType && !next.completed()) {
     cq.bot.on(next.eventType, checkCompletion);
   }
   else {
-    cq.checkCompletion(cq);
+    cq.bot.checkCompletion();
   }
 }
 

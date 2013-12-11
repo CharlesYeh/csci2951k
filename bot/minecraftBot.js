@@ -1,6 +1,8 @@
 var ActionQueue = require('./planner/actionQueue');
 var pk_planner = require('./planner/planner');
 var pk_mineflayer = require('../../mineflayer/');
+var pk_navigate= require('../mineflayer-navigate/')(pk_mineflayer);
+var pk_finder  = require('../mineflayer-blockfinder/')(pk_mineflayer);
 
 var mcbot;
 
@@ -13,6 +15,9 @@ function MinecraftBot() {
 	
 		username: "bot",
 	});
+
+  pk_navigate(this.bot);
+  pk_finder(this.bot);
 
   mcbot = this;
   this.actions = new ActionQueue(this.bot);

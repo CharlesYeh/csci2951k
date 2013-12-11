@@ -1,6 +1,7 @@
-pk_dict = require('../dictionary.js');
-Modifier = require('../Modifier.js');
-ModDescriptor = require('../ModDescriptor.js');
+pk_dict = require('../dictionary');
+Modifier = require('../Modifier');
+ModDescriptor = require('../ModDescriptor');
+ActionChat = require('../actions/ActionChat');
 
 var STATE_JUMP = "jump";
 var STATE_SPRINT = "sprint";
@@ -22,14 +23,42 @@ function ActionMove(bot, data, mod) {
   this.mod = pk_dict.interpretModifiers(bot, data.prep, this.mod);
 }
 ActionMove.prototype.setup = function(cq) {
-  if (!this.mod.dest.point) {
+  // if there's a target to interpret
+  if (this.mod.dest && !this.mod.dest.point) {
     this.mod.interpretTarget(this.mod, this.bot);
+
+    if (this.mod.dest.point && !this.navigateToPoint()) {
+      return false;
+    }
   }
-  
-  var actions = this.bot.astar(this.bot, this.bot.entity.position, this.mod.dest.point);
-  cq.prependActions(cq, actions);
+
+  // prerequisites handled by navigate
+  return true;
+}
+ActionMove.prototype.navigateToPoint() {
+  // if point is a block, then find an empty spot near it
+  if (this.mod.dest.block.boundingBox == "block") {
+    // TODO:
+  }
+
+  var result = this.bot.navigate.findPathSync(this.mod.dest.point, { timeout: 2 * 1000 });
+  if (result.status == "success") {
+    this.path = result.path;
+  }
+  else {
+    console.log("no path!" + JSON.stringify(result));
+    cq.prependActions(cq, new Array(
+      new ActionChat(this.bot, { dep: [{ fun: "I can't get there!" }] }))
+    );
+    this.skipped = true;
+    return false;
+  }
 }
 ActionMove.prototype.execute = function() {
+  if (this.skipped) {
+    return;
+  }
+
   this.start = this.bot.entity.position.clone();
   
   this.setDirControlState(true);
@@ -45,7 +74,13 @@ ActionMove.prototype.execute = function() {
     switch (this.mod.dest.type) {
     case ModDescriptor.DestType.SOFTTARGET:
     case ModDescriptor.DestType.HARDTARGET:
-      this.bot.lookAt(this.mod.dest.point);
+      if (this.mod.look) {
+        this.bot.lookAt(this.mod.dest.point);
+      }
+      else {
+        // setup in setup()
+        this.bot.navigate.walk(this.path);
+      }
       break;
     case ModDescriptor.DestType.ABSOLUTE:
       this.bot.entity.yaw = this.mod.dest.dir;
@@ -87,11 +122,15 @@ ActionMove.prototype.execute = function() {
   }
 }
 ActionMove.prototype.completed = function() {
+  if (this.skipped) {
+    return true;
+  }
+  var completed = false;
+
   if (this.mod.dest) {
     switch (this.mod.dest.type) {
     case ModDescriptor.DestType.DISTANCE:
       var movedDistance = this.bot.entity.position.distanceTo(this.start);
-      console.log(movedDistance);
       completed = movedDistance > this.mod.dest.count;
       break;
     case ModDescriptor.DestType.SOFTTARGET:
