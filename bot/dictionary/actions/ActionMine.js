@@ -1,6 +1,8 @@
-pk_dict = require('../dictionary.js');
-Modifier = require('../Modifier.js');
-ModDescriptor = require('../ModDescriptor.js');
+pk_dict = require('../dictionary');
+Modifier = require('../Modifier');
+ModDescriptor = require('../ModDescriptor');
+ActionMove = require('./ActionMove');
+
 
 /**
  * contains the basic Mine action of the minecraft bot
@@ -28,8 +30,8 @@ ActionMine.prototype.setup = function(cq) {
     return true;
   }
   else {
-    actMove = new ActionMove(Modifier.createDest(this.mod.targets));
-    cq.prependActions(actMove);
+    actMove = new ActionMove(this.bot, {}, Modifier.createDest(this.mod.targets));
+    cq.prependActions(cq, new Array(actMove));
     return false;
   }
 }

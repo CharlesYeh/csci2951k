@@ -1,6 +1,7 @@
 var Queue = require('./queue');
 
-function ActionQueue(bot) {
+function ActionQueue(bot, cbAction) {
+  this.actionComplete = cbAction;
   this.bot = bot;
   bot.cq = this;
   bot.checkCompletion = checkCompletion;
@@ -23,6 +24,11 @@ checkCompletion = function() {
     this.removeListener(curr.eventType, checkCompletion);
     cq.actions.dequeue();
 
+    // if is last action for a command, and callback exists
+    if (cq.actionComplete && curr.cmd) {
+      cq.actionComplete();
+    }
+
     if (cq.actions.size > 0) {
       cq.runNextAction(cq);
     }
@@ -33,6 +39,7 @@ ActionQueue.prototype.addActions = function(cq, cmds) {
   var prevEmpty = cq.actions.size == 0;
 
   for (var i = 0; i < cmds.length; i++) {
+    cmds[i].cmd = true;
     cq.actions.enqueue(cmds[i]);
   }
 

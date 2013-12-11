@@ -56,6 +56,11 @@ function parseCommand(command, callb) {
   var client = net.connect({port: 6789}, function() {}); 
   var data = "";
 
+  client.on('error', function() {
+    console.log("error connecting to parser");
+    process.exit();
+  });
+
   client.on('connect', function() {
     client.write(command);
 

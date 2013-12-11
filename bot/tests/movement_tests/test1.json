@@ -1,1 +1,6 @@
-{"title":"Basic Movement"}
+{
+"title":"Basic Movement",
+"map":0,
+"command":"move to the yellow block",
+"displacement":[3,4,5]
+}

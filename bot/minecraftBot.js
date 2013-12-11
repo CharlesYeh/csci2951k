@@ -6,13 +6,23 @@ var pk_finder  = require('../mineflayer-blockfinder/')(pk_mineflayer);
 
 var mcbot;
 
-function MinecraftBot() {
+function MinecraftBot(spawnPoint, cbSpawn, cbAction) {
 	this.planner = new pk_planner.Planner();
 	
+  var sp = new pk_mineflayer.vec3();
+  if (spawnPoint) {
+    sp = spawnPoint;
+    console.log('manual spawn location');
+  } else {
+    sp.x = -614;
+    sp.y = 4;
+    sp.z = -1212;
+  }
+
 	this.bot = pk_mineflayer.createBot({
 		host: "localhost",
 		port: 25565,
-	
+	  spawnPoint: sp,
 		username: "bot",
 	});
 
@@ -20,11 +30,22 @@ function MinecraftBot() {
   pk_finder(this.bot);
 
   mcbot = this;
-  this.actions = new ActionQueue(this.bot);
+  this.actions = new ActionQueue(this.bot, cbAction);
 	
 	// events
 	this.bot.on('login', function() {
 		console.log("Logged in");
+  });
+
+  this.bot.on('spawn', function() {
+    if (cbSpawn) {
+      cbSpawn();
+    }
+  });
+
+  this.bot.on('end', function() {
+    console.log("Disconnected from MC server");
+    process.exit();
   });
 	
 	// handle chat commands
@@ -92,6 +113,10 @@ MinecraftBot.prototype.getBlockType = function(bot, types) {
   }
 
   return matches;
+}
+
+MinecraftBot.prototype.teleport = function(px, py, pz) {
+  this.bot.chat("/tp bot " + px + " " + py + " " + pz);
 }
 
 module.exports = MinecraftBot;

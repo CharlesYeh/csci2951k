@@ -42,7 +42,7 @@ ActionMove.prototype.navigateToPoint = function() {
     var dx = this.mod.dest.point.x - this.bot.entity.position.x;
     var dz = this.mod.dest.point.z - this.bot.entity.position.z;
 
-    var rad = Math.atan2(dz, dx);
+    var rad = Math.atan2(-dz, -dx);
     var cardX0 = Math.cos(rad);
     var cardY0 = Math.sin(rad);
 
@@ -85,8 +85,8 @@ ActionMove.prototype.navigateToPoint = function() {
     return false;
   }
 }
-ActionMove.prototype.isObstacle(v) {
-  var b = this.block.blockAt(v);
+ActionMove.prototype.isObstacle = function(v) {
+  var b = this.bot.blockAt(v);
   return (b != null && b.boundingBox == "block") ? null : v;
 }
 ActionMove.prototype.execute = function() {

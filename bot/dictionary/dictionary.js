@@ -131,6 +131,8 @@ function lookupWord_blocks(bot, node, word) {
     return interpretDest(bot, node, "dirt");
   case "cobblestone":
     return interpretDest(bot, node, "stonebrick");
+  case "logs":
+    return interpretMultDest(bot, node, new Array("log"));
   case "wood":
     return interpretMultDest(bot, node, new Array("log", "wood"));
   case "plank":
