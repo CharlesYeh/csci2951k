@@ -2,6 +2,7 @@ pk_dict = require('../dictionary');
 Modifier = require('../Modifier');
 ModDescriptor = require('../ModDescriptor');
 ActionChat = require('../actions/ActionChat');
+pk_mineflayer = require('../../../../mineflayer');
 
 var STATE_JUMP = "jump";
 var STATE_SPRINT = "sprint";
@@ -38,7 +39,37 @@ ActionMove.prototype.setup = function(cq) {
 ActionMove.prototype.navigateToPoint = function() {
   // if point is a block, then find an empty spot near it
   if (this.mod.dest.block.boundingBox == "block") {
-    // TODO:
+    var dx = this.mod.dest.point.x - this.bot.entity.position.x;
+    var dz = this.mod.dest.point.z - this.bot.entity.position.z;
+
+    var rad = Math.atan2(dz, dx);
+    var cardX0 = Math.cos(rad);
+    var cardY0 = Math.sin(rad);
+
+    var cardX45 = Math.cos(rad + Math.PI / 4);
+    var cardY45 = Math.sin(rad + Math.PI / 4);
+    var cardXN45 = Math.cos(rad - Math.PI / 4);
+    var cardYN45 = Math.sin(rad - Math.PI / 4);
+
+    var cardX90 = Math.cos(rad + Math.PI / 2);
+    var cardY90 = Math.sin(rad + Math.PI / 2);
+    var cardXN90 = Math.cos(rad - Math.PI / 2);
+    var cardYN90 = Math.sin(rad - Math.PI / 2);
+    
+    var px = this.mod.dest.point.x + .5;
+    var py = this.mod.dest.point.y;
+    var pz = this.mod.dest.point.z + .5;
+
+    var newdest =
+      this.isObstacle(pk_mineflayer.vec3(px + cardX0, py, pz + cardY0)) ||
+      this.isObstacle(pk_mineflayer.vec3(px + cardX45, py, pz + cardY45)) ||
+      this.isObstacle(pk_mineflayer.vec3(px + cardXN45, py, pz + cardYN45)) ||
+      this.isObstacle(pk_mineflayer.vec3(px + cardX90, py, pz + cardY90)) ||
+      this.isObstacle(pk_mineflayer.vec3(px + cardXN90, py, pz + cardYN90));
+
+    if (newdest != null) {
+      this.mod.dest.point = newdest;
+    }
   }
 
   var result = this.bot.navigate.findPathSync(this.mod.dest.point, { timeout: 2 * 1000 });
@@ -46,13 +77,17 @@ ActionMove.prototype.navigateToPoint = function() {
     this.path = result.path;
   }
   else {
-    console.log("no path!" + JSON.stringify(result));
+    console.log("no path!");
     cq.prependActions(cq, new Array(
       new ActionChat(this.bot, { dep: [{ fun: "I can't get there!" }] }))
     );
     this.skipped = true;
     return false;
   }
+}
+ActionMove.prototype.isObstacle(v) {
+  var b = this.block.blockAt(v);
+  return (b != null && b.boundingBox == "block") ? null : v;
 }
 ActionMove.prototype.execute = function() {
   if (this.skipped) {

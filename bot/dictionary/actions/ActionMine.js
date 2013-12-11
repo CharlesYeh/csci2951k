@@ -24,8 +24,14 @@ ActionMine.prototype.setup = function(cq) {
     this.mod.interpretTarget(this.mod, this.bot);
   }
 
-  //return (this.bot.canDigBlock(this.mod.dest.point));
-  return true;
+  if (this.bot.canDigBlock(this.mod.dest.point)) {
+    return true;
+  }
+  else {
+    actMove = new ActionMove(Modifier.createDest(this.mod.targets));
+    cq.prependActions(actMove);
+    return false;
+  }
 }
 ActionMine.prototype.execute = function() {
   if (this.mod.dest) {

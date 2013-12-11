@@ -37,8 +37,14 @@ ActionCraft.prototype.setup = function(cq) {
   }
   this.table = closestTable;
 
-  //return this.bot.canDigBlock(this.table);
-  return true;
+  if (this.bot.canDigBlock(this.table)) {
+    return true;
+  }
+  else {
+    actMove = new ActionMove(Modifier.createDest(this.mod.targets));
+    cq.prependActions(actMove);
+    return false;
+  }
 }
 ActionCraft.prototype.execute = function() {
   this.mod.interpretTarget(this.mod, this.bot);
