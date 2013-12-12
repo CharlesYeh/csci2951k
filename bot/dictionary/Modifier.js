@@ -14,6 +14,8 @@ function Modifier(f, d, r, j, l) {
   this.dir  = (r == null) ? Modifier.Dir.FORWARD : r;
   this.jump = (j === undefined) ? false : j;
   this.look = (l == null) ? false : l;
+
+  this.target = null;
 }
 
 Modifier.Dir = {
@@ -40,6 +42,11 @@ Modifier.createJumping = function() {
 Modifier.createLook = function() {
   return new Modifier(null, null, null, null, true);
 }
+Modifier.createItem = function(t) {
+  var m = new Modifier();
+  m.target = t;
+  return m;
+}
 
 Modifier.prototype.combine = function(mm) {
   this.fast |= mm.fast;
@@ -52,6 +59,10 @@ Modifier.prototype.combine = function(mm) {
 
   if (this.dir == Modifier.Dir.FORWARD) {
     this.dir = mm.dir;
+  }
+
+  if (this.target == null) {
+    this.target = mm.target;
   }
 }
 

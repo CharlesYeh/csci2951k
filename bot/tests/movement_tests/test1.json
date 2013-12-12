@@ -1,6 +1,7 @@
 {
 "title":"Basic Movement",
 "map":0,
-"command":"move to the yellow block",
-"displacement":[3,4,5]
+"command":"look up",
+"displacement":
+  {"x":0,"y":0,"z":0}
 }

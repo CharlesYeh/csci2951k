@@ -27,10 +27,10 @@ ActionMove.prototype.setup = function(cq) {
   // if there's a target to interpret
   if (this.mod.dest && !this.mod.dest.point) {
     this.mod.interpretTarget(this.mod, this.bot);
+  }
 
-    if (this.mod.dest.point && !this.navigateToPoint()) {
-      return false;
-    }
+  if (this.mod.dest && this.mod.dest.point && !this.navigateToPoint()) {
+    return false;
   }
 
   // prerequisites handled by navigate
@@ -38,7 +38,7 @@ ActionMove.prototype.setup = function(cq) {
 }
 ActionMove.prototype.navigateToPoint = function() {
   // if point is a block, then find an empty spot near it
-  if (this.mod.dest.block.boundingBox == "block") {
+  if (this.mod.dest.block && this.mod.dest.block.boundingBox == "block") {
     var dx = this.mod.dest.point.x - this.bot.entity.position.x;
     var dz = this.mod.dest.point.z - this.bot.entity.position.z;
 
@@ -53,8 +53,6 @@ ActionMove.prototype.navigateToPoint = function() {
 
     var cardX90 = Math.cos(rad + Math.PI / 2);
     var cardY90 = Math.sin(rad + Math.PI / 2);
-    var cardXN90 = Math.cos(rad - Math.PI / 2);
-    var cardYN90 = Math.sin(rad - Math.PI / 2);
     
     var px = this.mod.dest.point.x + .5;
     var py = this.mod.dest.point.y;
@@ -65,7 +63,11 @@ ActionMove.prototype.navigateToPoint = function() {
       this.isObstacle(pk_mineflayer.vec3(px + cardX45, py, pz + cardY45)) ||
       this.isObstacle(pk_mineflayer.vec3(px + cardXN45, py, pz + cardYN45)) ||
       this.isObstacle(pk_mineflayer.vec3(px + cardX90, py, pz + cardY90)) ||
-      this.isObstacle(pk_mineflayer.vec3(px + cardXN90, py, pz + cardYN90));
+      this.isObstacle(pk_mineflayer.vec3(px - cardXN90, py, pz - cardYN90)) ||
+
+      this.isObstacle(pk_mineflayer.vec3(px - cardX45, py, pz - cardY45)) ||
+      this.isObstacle(pk_mineflayer.vec3(px - cardXN45, py, pz - cardYN45)) ||
+      this.isObstacle(pk_mineflayer.vec3(px - cardX0, py, pz - cardY0));
 
     if (newdest != null) {
       this.mod.dest.point = newdest;
@@ -73,12 +75,15 @@ ActionMove.prototype.navigateToPoint = function() {
   }
 
   var result = this.bot.navigate.findPathSync(this.mod.dest.point, { timeout: 2 * 1000 });
+
   if (result.status == "success") {
+    console.log("pathfinding success");
     this.path = result.path;
+    return true;
   }
   else {
     console.log("no path!");
-    cq.prependActions(cq, new Array(
+    this.bot.cq.prependActions(this.bot.cq, new Array(
       new ActionChat(this.bot, { dep: [{ fun: "I can't get there!" }] }))
     );
     this.skipped = true;

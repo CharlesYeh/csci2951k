@@ -5,9 +5,6 @@
 function ModDescriptor(type, dir) {
   this.type = type;
 
-  // item type to find
-  this.target = null;
-
   // block objects to go to
   this.targets = null;
 
@@ -69,11 +66,6 @@ ModDescriptor.createHardTargeted = function() {
 }
 ModDescriptor.createAbsolute = function(d) {
   return new ModDescriptor(ModDescriptor.DestType.ABSOLUTE, d);
-}
-ModDescriptor.createItem = function(t) {
-  var m = new ModDescriptor(ModDescriptor.DestType.SOFTTARGET);
-  m.target = new Array(t);
-  return m;
 }
 
 module.exports = ModDescriptor;

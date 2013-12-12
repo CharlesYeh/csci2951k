@@ -4,6 +4,16 @@ var fs = require('fs');
 var MinecraftBot = require('../minecraftBot');
 var pk_mineflayer = require('../../../mineflayer');
 
+//GLOBAL VARIABLES
+var MAP_ORIGINS = [ 
+                    [-629.50, 4.50, -1246.50] ,
+                    [-629.50, 4.50, -1266.50] ,
+                    [-609.50, 4.50, -1246.50] ,
+                    [-609.50, 4.50, -1266.50] ,
+                    [-589.50, 4.50, -1246.50] ,
+                    [-589.50, 4.50, -1266.50] ];
+                  
+
 //MAIN
 
 function main() {
@@ -20,30 +30,94 @@ function main() {
   //Obtain filenames
   var file_paths = getFilePaths(tests_address);
 
-  //Read files and print test Objects;
+  //Read files and run tests;
   getTestObjects(file_paths, function(test_objects) {
-    console.log(test_objects);
+    executeTests(test_objects, MAP_ORIGINS);
   });
 
-  //Create bot
-  
-  var sp = position([-634,4,-1212]);
-
-  var mcBot = new MinecraftBot(sp, function() {
-    console.log(mcBot.bot.spawnPoint);
-    console.log(mcBot.bot.entity.position);
-    //teleportBot(mcBot,[-600,3,4]);
-    //console.log(mcBot.bot.entity.position);
-  }, function() {
-    console.log(mcBot.bot.entity.position);
-    mcBot.bot.navigate(sp);
-    });
 }
 
 main();
 
 
 //HELPER FUNCTIONS
+
+//function to run all tests and record results
+function executeTests(tests,maps) {
+  numTests = tests.length;
+  index = 0;
+  test = null;
+
+  passed_commands = '';
+  failed_commands = '';
+
+  passed = 0;
+  failed = 0;
+
+  mcBot = new MinecraftBot(toVec(maps[0]), runNextTest, evaluateTest);
+
+  function runNextTest() {
+    if(index>=numTests) {
+      console.log("Tests Completed\n");
+      console.log("Passed Commands:\n");
+      console.log(passed_commands);
+      console.log("Failed Commands:\n");
+      console.log(failed_commands);
+      console.log("Pass Percentage:\n");
+      console.log(passed/numTests);
+      return;
+    }
+    test = tests[index];
+    teleportToMap(mcBot,test.map,maps);
+    test.command = test.command += '\n'
+    mcBot.executeCommand(test.command);
+  }
+
+  function evaluateTest() {
+    console.log(test.title);
+    posn1 = test.displacement;
+    posn2 = new pk_mineflayer.vec3();
+    bot_pos = mcBot.bot.entity.position;
+    map_pos = maps[test.map];
+    posn2.x = bot_pos.x - map_pos[0];
+    posn2.y = bot_pos.y - map_pos[1];
+    posn2.z = bot_pos.y - map_pos[2];
+    var result = withinRange(posn1,posn2,1.0);
+    if(result) {
+      passed++;
+      passed_commands += test.command;
+    } else {
+      failed++;
+      failed_commands += test.command;
+    }
+    index++;
+    runNextTest();
+  }
+
+}
+
+//turn position array to vec3()
+function toVec(posn_array) {
+  var result = new pk_mineflayer.vec3();
+  result.x = posn_array[0];
+  result.y = posn_array[1];
+  result.z = posn_array[2];
+  return result;
+}
+
+//function to see if two posns are within a range
+function withinRange(posn1, posn2, range) {
+  var x = (Math.abs((posn1.x - posn2.x))<=range);
+  var y = (Math.abs((posn1.y - posn2.y))<=range);
+  var z = (Math.abs((posn1.z - posn2.z))<=range);
+  return (x && y && z);
+}
+
+//function to teleport input bot to specified map
+function teleportToMap(bot, map_id, map_locs) {
+  var pos = map_locs[map_id];
+  bot.teleport(pos[0],pos[1],pos[2]);
+}
 
 function position(loc) {
   var sp = new pk_mineflayer.vec3();

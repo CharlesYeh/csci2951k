@@ -57,7 +57,6 @@ ActionQueue.prototype.prependActions = function(cq, actions) {
 
 ActionQueue.prototype.runNextAction = function(cq) {
   var comm = cq.actions;
-
   var next = comm.peek();
 
   // back chaining, prereq checking

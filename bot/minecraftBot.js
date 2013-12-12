@@ -14,9 +14,9 @@ function MinecraftBot(spawnPoint, cbSpawn, cbAction) {
     sp = spawnPoint;
     console.log('manual spawn location');
   } else {
-    sp.x = -614;
-    sp.y = 4;
-    sp.z = -1212;
+    sp.x = 1000.50;
+    sp.y = 4.5;
+    sp.z = 1000.50;
   }
 
 	this.bot = pk_mineflayer.createBot({
@@ -78,7 +78,7 @@ MinecraftBot.prototype.addActions = function(mcbot, actions) {
 }
 
 MinecraftBot.prototype.scanNearby = function(bot) {
-  var DIFF = 30;
+  var DIFF = 20;
 
   var pos = bot.entity.position.floored();
   var blkPos = new pk_mineflayer.vec3();
@@ -87,14 +87,17 @@ MinecraftBot.prototype.scanNearby = function(bot) {
 
   for (var dx = -DIFF; dx <= DIFF; dx++) {
     for (var dz = -DIFF; dz <= DIFF; dz++) {
-      blkPos.x = pos.x + dx;
-      blkPos.y = pos.y;
-      blkPos.z = pos.z + dz;
+      var dy = 0
+      //for (var dy = -DIFF; dz <= DIFF; dy++) {
+        blkPos.x = pos.x + dx;
+        blkPos.y = pos.y + dy;
+        blkPos.z = pos.z + dz;
 
-      blk = bot.blockAt(blkPos);
-      if (blk != null && blk.name != 'air') {
-        bot.nearbyBlocks.push(blk);
-      }
+        blk = bot.blockAt(blkPos);
+        if (blk != null && blk.name != 'air') {
+          bot.nearbyBlocks.push(blk);
+        }
+      //}
     }
   }
 }

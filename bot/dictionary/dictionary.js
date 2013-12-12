@@ -86,6 +86,7 @@ function lookupWord(bot, node) {
     return ModDescriptor.createHardTargeted();
   case "a":
   case "an":
+  case "some":
     return ModDescriptor.createSoftTargeted();
 
   default:
@@ -99,18 +100,24 @@ function lookupWord_items(bot, node, word) {
   switch (word) {
   case "plank":
   case "planks":
-    return Modifier.createDest(ModDescriptor.createItem(5));
+    return Modifier.createItem(5);
+  case "sword":
+    return Modifier.createItem(268);
   case "shovel":
-    return Modifier.createDest(ModDescriptor.createItem(256));
+    return Modifier.createItem(269);
+  case "pickax":
   case "pickaxe":
-    return Modifier.createDest(ModDescriptor.createItem(257));
+    return Modifier.createItem(270);
   case "axe":
-    return Modifier.createDest(ModDescriptor.createItem(258));
+    return Modifier.createItem(271);
   case "flint":
-    return Modifier.createDest(ModDescriptor.createItem(259));
+    return Modifier.createItem(259);
   case "stick":
   case "sticks":
-    return Modifier.createDest(ModDescriptor.createItem(280));
+    return Modifier.createItem(280);
+  case "torch":
+  case "torches":
+    return Modifier.createItem(50);
   default:
     return null;
   }
@@ -120,11 +127,13 @@ function lookupWord_blocks(bot, node, word) {
   switch (word) {
   case "blocks":
   case "block":
-    return interpretMultDest(bot, node, new Array("stone", "grass", "dirt", "stonebrick", "wood", "sand", "gravel", "log", ""));
+    return interpretMultDest(bot, node, new Array("stone", "grass", "dirt", "stonebrick", "wood", "sand", "gravel", "log", "glass"));
 
   case "stone":
   case "rock":
-    return interpretDest(bot, node, "stone");
+    return interpretDest(bot, node, "stone", "stonebrick");
+  case "glass":
+    return interpretDest(bot, node, "glass");
   case "grass":
     return interpretDest(bot, node, "grass");
   case "dirt":
@@ -132,12 +141,10 @@ function lookupWord_blocks(bot, node, word) {
   case "cobblestone":
     return interpretDest(bot, node, "stonebrick");
   case "logs":
+  case "log":
     return interpretMultDest(bot, node, new Array("log"));
   case "wood":
     return interpretMultDest(bot, node, new Array("log", "wood"));
-  case "plank":
-  case "planks":
-    return interpretDest(bot, node, "wood");
   case "sapling":
     return interpretDest(bot, node, "sapling");
   case "water":
@@ -157,8 +164,6 @@ function lookupWord_blocks(bot, node, word) {
     return interpretMultDest(bot, node, new Array("flower", "rose"));
   case "mushroom":
     return interpretMultDest(bot, node, new Array("mushroomBrown", "mushroomRed"));
-  case "torch":
-    return interpretDest(bot, node, "torch");
   case "rose":
     return interpretDest(bot, node, "rose");
   case "table":
